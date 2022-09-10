@@ -1,0 +1,42 @@
+const express = require('express');
+
+const router = express.Router();
+
+const DUMMY_PLACES =[
+    {
+        id:'p1',
+        title:"Infopark Kochi",
+        description:"Information technology park situated in the city of Kochi, Kerala, India",
+        imageURL:"https://infopark.in/assets/images/slider/homeBanner2.jpg",
+        address:"Phase 1, Info Road, Near Tapasya Block Kakkanad, Kochi, Kerala 682042",
+        location:{
+            lat:10.0115718,
+            lng:76.3599615
+        },
+        creator:'u1'
+    }
+]
+
+router.get('/:pid',(req,res,next)=>{
+    const placeId = req.params.pid;
+    const place = DUMMY_PLACES.find(p=>{
+        return p.id === placeId;
+    })
+    if(!place){
+       return res.status(404).json({message:'could not find a place for provided id.'})
+    }
+    res.json({place});
+})
+
+router.get('/user/:uid',(req,res,next)=>{
+    const userId = req.params.uid;
+    const place = DUMMY_PLACES.find(p=>{
+        return p.creator === userId;
+    })
+    if(!place){
+        return res.status(404).json({message:'could not find a place for provided user id.'})
+     }
+     res.json({place});
+})
+
+module.exports = router;
