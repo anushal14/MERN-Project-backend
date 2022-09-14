@@ -15,28 +15,49 @@ const getUsers = (req,res,next) => {
     res.json({users:DUMMY_USERS});
 }
 
-const signup = (req,res,next) => {
+const signup = async (req,res,next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         console.log(errors);
-        throw new HttpError('invalid inputs passed',422)
+        return next(new HttpError('invalid inputs passed',422))
     }
 
-   const {name,email,password} = req.body; 
+   const {name,email,password,places} = req.body; 
 
-   const hasUser = DUMMY_USERS.find(u=>u.email === email)
-   if(hasUser){
-    throw new HttpError('email already exists',422)
-   }
+//    const hasUser = DUMMY_USERS.find(u=>u.email === email)
+//    if(hasUser){
+//     throw new HttpError('email already exists',422)
+//    }
+    let existingUser;
+    try{
+        existingUser = await User.findOne({email:email})
+    }catch(err){
+        const error = new HttpError(err,500);
+        return next(error)
+    }
 
-   const createdUser = {
-    id:uuidv4(),
+    if(existingUser){
+       const error =new HttpError('email already exists',422) ;
+       return next(error)
+    }
+
+   const createdUser = new User({
     name,
     email,
-    password
-   };
-   DUMMY_USERS.push(createdUser);
-   res.status(201).json({user:createdUser})
+    image:'https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png',
+    password,
+    places
+   });
+
+//    DUMMY_USERS.push(createdUser);
+
+try{
+    await createdUser.save()
+}catch(err){
+    const error =new HttpError(err,500) ;
+    return next(error)
+}
+   res.status(201).json({user:createdUser.toObject({getters:true})})
 }
 
 const login = (req,res,next) => {
