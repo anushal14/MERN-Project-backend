@@ -1,15 +1,6 @@
-const {v4:uuidv4} = require('uuid');
 const {validationResult} = require('express-validator')
 const HttpError = require('../models/http-error');
 const User = require('../models/user')
-const DUMMY_USERS = [
-    {
-        id:'u1',
-        name:'Anushal',
-        email:'abc@gmail.com',
-        password:'tester'
-    }
-]
 
 const getUsers = async (req,res,next) => {
     let users;
@@ -31,10 +22,6 @@ const signup = async (req,res,next) => {
 
    const {name,email,password} = req.body; 
 
-//    const hasUser = DUMMY_USERS.find(u=>u.email === email)
-//    if(hasUser){
-//     throw new HttpError('email already exists',422)
-//    }
     let existingUser;
     try{
         existingUser = await User.findOne({email:email})
