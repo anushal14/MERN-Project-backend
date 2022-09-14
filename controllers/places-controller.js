@@ -1,7 +1,10 @@
 const { v4: uuidv4 } = require('uuid')
 const { validationResult } = require('express-validator')
+const  mongoose = require('mongoose')
 const HttpError = require('../models/http-error')
 const Place = require('../models/place')
+const User = require('../models/user')
+
 
 
 let DUMMY_PLACES = [
@@ -57,17 +60,35 @@ const createPlace = async (req, res, next) => {
         console.log(errors);
         return next(new HttpError('invalid inputs passed', 422))
     }
-    const { title, description, coordinates, address, creator } = req.body;
+    const { title, description, address, creator } = req.body;
     const createdPlace = new Place({
         title,
         description,
-        location: coordinates,
         address,
+        location: {"lat":-45.4484,"lng":85.467474},
         image: 'https://infopark.in/assets/images/slider/homeBanner2.jpg',
         creator
     })
+
+    let user;
     try {
-        await createdPlace.save();
+        user = await User.findById(creator)
+    } catch (err){
+        const error = new HttpError("err",500)
+        return next(error);
+    }
+    if(!user){
+        const error = new HttpError("could not find the user for provided id",404)
+        return next(error);
+    }
+
+    try {
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await createdPlace.save({ session: sess });
+        user.places.push(createdPlace);
+        await user.save({ session: sess});
+        await sess.commitTransaction();
     } catch (err){
         const error = new HttpError(err,500)
         return next(error);
