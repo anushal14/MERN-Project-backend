@@ -29,7 +29,7 @@ const signup = async (req,res,next) => {
         return next(new HttpError('invalid inputs passed',422))
     }
 
-   const {name,email,password,places} = req.body; 
+   const {name,email,password} = req.body; 
 
 //    const hasUser = DUMMY_USERS.find(u=>u.email === email)
 //    if(hasUser){
@@ -53,7 +53,7 @@ const signup = async (req,res,next) => {
     email,
     image:'https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png',
     password,
-    places
+    places: []
    });
 
 //    DUMMY_USERS.push(createdUser);
