@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator')
+const fs = require('fs')
 const  mongoose = require('mongoose')
 const HttpError = require('../models/http-error')
 const Place = require('../models/place')
@@ -30,9 +31,9 @@ const getPlacesByUserId =async (req, res, next) => {
         return next(error);
     }
     
-    if (!places || places.length === 0) {
-        return next(new HttpError('could not find a place for provided user id.', 404));
-    }
+    // if (!places || places.length === 0) {
+    //     return next(new HttpError('could not find a place for provided user id.', 404));
+    // }
     res.json({ places:places.map(place=>place.toObject({getters:true})) });
 }
 
@@ -48,7 +49,7 @@ const createPlace = async (req, res, next) => {
         description,
         address,
         location: {"lat":-45.4484,"lng":85.467474},
-        image: 'https://infopark.in/assets/images/slider/homeBanner2.jpg',
+        image: req.file.path,
         creator
     })
 
@@ -122,6 +123,7 @@ const deletePlace = async (req, res, next) => {
         const error = new HttpError("could not find the place for provided id",404)
         return next(error);
     }
+    const imagePath = place.image;
     try{
         const sess = await mongoose.startSession();
         sess.startTransaction()
@@ -133,6 +135,9 @@ const deletePlace = async (req, res, next) => {
         const error = new HttpError(err,500);
         return next(error)
     }
+    fs.unlink(imagePath,err=>{
+        console.log(err)
+    })
     res.status(200).json({ message: "Deleted place" })
 
 }
