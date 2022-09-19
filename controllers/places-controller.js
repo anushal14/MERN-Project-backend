@@ -31,9 +31,9 @@ const getPlacesByUserId =async (req, res, next) => {
         return next(error);
     }
     
-    // if (!places || places.length === 0) {
-    //     return next(new HttpError('could not find a place for provided user id.', 404));
-    // }
+    if (!places || places.length === 0) {
+        return next(new HttpError('could not find a place for provided user id.', 404));
+    }
     res.json({ places:places.map(place=>place.toObject({getters:true})) });
 }
 
@@ -97,6 +97,11 @@ const updatePlace =async (req, res, next) => {
         return next(error);
     }
 
+    if(place.creator.toString() !== req.userData.userId){
+        const error = new HttpError('You are not allowed to edit this place',401)
+        return next(error)
+    }
+
     place.title = title;
     place.description = description;
     
@@ -122,6 +127,11 @@ const deletePlace = async (req, res, next) => {
     if(!place){
         const error = new HttpError("could not find the place for provided id",404)
         return next(error);
+    }
+
+    if(place.creator.id !== req.userData.userId){
+        const error = new HttpError('You are not allowed to edit this place',401)
+        return next(error)
     }
     const imagePath = place.image;
     try{
