@@ -46,7 +46,7 @@ app.use((error, req, res, next) => {
 })
 
 
-mongoose.connect(`mongodb+srv://Anushal:Anushal123@cluster0.cex4b7b.mongodb.net/places?retryWrites=true&w=majority`)
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.a64ds0s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`)
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", function () {

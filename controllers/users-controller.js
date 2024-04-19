@@ -67,7 +67,7 @@ try{
     const error =new HttpError(err,500) ;
     return next(error)
 }
-   res.status(201).json({user:createdUser.id,email:createdUser.email,token:token})
+   res.status(201).json({userId:createdUser.id,email:createdUser.email,token:token})
 }
 
 const login = async (req,res,next) => {

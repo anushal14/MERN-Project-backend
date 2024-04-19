@@ -1,0 +1,7 @@
+{
+    "env":{
+        "DB_USER":"Anushal",
+        "DB_PASSWORD":"Anushal123",
+        "DB_NAME":"places"
+    }
+}
