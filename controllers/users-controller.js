@@ -3,6 +3,7 @@ const HttpError = require('../models/http-error');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const {uploadFileToFirebase} =require('../middleware/file-upload')
 
 const getUsers = async (req,res,next) => {
     let users;
@@ -43,11 +44,18 @@ const signup = async (req,res,next) => {
         const error = new HttpError('could not create user,please try again',500);
         return next(error)
     }
+    let uploadedFileUrl
+    try {
+         uploadedFileUrl = await uploadFileToFirebase(req.file);
+       
+      } catch (error) {
+        res.status(500).send(`Error uploading file: ${error}`);
+      }
 
    const createdUser = new User({
     name,
     email,
-    image:req.file.path,
+    image:uploadedFileUrl,
     password:hashedPassword,
     places: []
    });

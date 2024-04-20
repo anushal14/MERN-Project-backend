@@ -4,6 +4,7 @@ const  mongoose = require('mongoose')
 const HttpError = require('../models/http-error')
 const Place = require('../models/place')
 const User = require('../models/user')
+const {uploadFileToFirebase} =require('../middleware/file-upload')
 
 const getPlaceById =async (req, res, next) => {
     const placeId = req.params.pid;
@@ -44,12 +45,19 @@ const createPlace = async (req, res, next) => {
         return next(new HttpError('invalid inputs passed', 422))
     }
     const { title, description, address, creator } = req.body;
+    let uploadedFileUrl
+    try {
+         uploadedFileUrl = await uploadFileToFirebase(req.file);
+       
+      } catch (error) {
+        res.status(500).send(`Error uploading file: ${error}`);
+      }
     const createdPlace = new Place({
         title,
         description,
         address,
         location: {"lat":-45.4484,"lng":85.467474},
-        image: req.file.path,
+        image: uploadedFileUrl,
         creator
     })
 
@@ -133,7 +141,7 @@ const deletePlace = async (req, res, next) => {
         const error = new HttpError('You are not allowed to edit this place',401)
         return next(error)
     }
-    const imagePath = place.image;
+    // const imagePath = place.image;
     try{
         const sess = await mongoose.startSession();
         sess.startTransaction()
@@ -145,9 +153,9 @@ const deletePlace = async (req, res, next) => {
         const error = new HttpError(err,500);
         return next(error)
     }
-    fs.unlink(imagePath,err=>{
-        console.log(err)
-    })
+    // fs.unlink(imagePath,err=>{
+    //     console.log(err)
+    // })
     res.status(200).json({ message: "Deleted place" })
 
 }
