@@ -7,10 +7,11 @@ const MIME_TYPE_MAP = {
 }
 const { Storage } = require('@google-cloud/storage');
 const admin = require('firebase-admin');
-const serviceAccount = require('../middleware/serviceAccount.json')
+const serviceAccount = process.env.GOOGLE_APPLICATION_CREDENTIALS
+const serviceAccountObj = JSON.parse(serviceAccount)
 // Initialize Firebase Admin SDK with your service account key
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(serviceAccountObj),
     storageBucket: 'gs://socialshare-de435.appspot.com'
 });
 
